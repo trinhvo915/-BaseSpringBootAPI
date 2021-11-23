@@ -1,0 +1,45 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+version: '3.7'
+#Define services
+services:
+    #Back-end Spring Boot Application
+    server-app-api:
+        #The docker file in clinic-app build the jar and provides the docker image with the following name.
+        build: ./SpringBootApp # Get DockerFile to build image
+        container_name: server-app-api
+        environment:
+          - DB_SERVER=mysql-db
+          - MYSQL_DATABASE=MYSQL_DB
+          - MYSQL_USER=user1
+          - MYSQL_PASSWORD=Aa123456
+        ports:
+          - 8080:8080 # Forward the exposed port 8080 on the container to port 8080 on the host machine 
+        depends_on: 
+          - mysql-db
+        # command: sh -c './wait-for clinic-mysql:3306 -- npm start'
+    
+  # MySQL Database for the application
+    mysql-db:
+        image: "mysql:5.7"
+        container_name: mysql-db
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        #Volume mounted for database for the storage
+        volumes:
+          - ./Database/Volumes:/var/lib/mysql
+          - ./Database/InitDB:/docker-entrypoint-initdb.d/:ro #create database MYSQL_DB When start in file init.sql
+        ports:
+          - 3307:3306 # Forward the exposed port 3306 on the container to port 3307 on the host machine
+
+        #Environment variable for DB name, user and password
+        environment:
+          - MYSQL_ROOT_PASSWORD=root
+          - MYSQL_DATABASE=MYSQL_DB
+          - MYSQL_USER=user1
+          - MYSQL_PASSWORD=Aa123456
+# Volumes for DB data
+volumes:
+  Volumes:
+  InitDB:
+
+
